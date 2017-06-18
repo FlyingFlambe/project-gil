@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 9c864f64a12e1f04cb6ccef74af1594e
-timeCreated: 1496612753
+timeCreated: 1497815461
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -10,6 +10,14 @@ TextureImporter:
     21300006: TerrainTestWater
     21300008: TerrainTestHazard
     21300010: TerrainTestTransition
+    21300012: TerrainTestGrass
+    21300014: TerrainTestDirt
+    21300016: TerrainTestMoving
+    21300018: TerrainTestWater
+    21300020: TerrainTestHazard
+    21300022: TerrainTestPortal
+    21300024: CheckpointTestClose
+    21300026: CheckpointTestOpen
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -173,11 +181,37 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: TerrainTestTransition
+      name: TerrainTestPortal
       rect:
         serializedVersion: 2
         x: 42
         y: 26
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: CheckpointTestClose
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 6
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: CheckpointTestOpen
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 6
         width: 16
         height: 16
       alignment: 0
