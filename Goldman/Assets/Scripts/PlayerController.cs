@@ -15,11 +15,16 @@ public class PlayerController : MonoBehaviour {
     public LayerMask whatIsGround;
     public bool isGrounded;
 
+    public Vector3 respawnPosition;
+    public LevelManager levelManager;
+
     void Start () {
 
         rb2d = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 
+        respawnPosition = transform.position;
+        levelManager = FindObjectOfType<LevelManager>();
     }
 	
 	void Update () {
@@ -61,5 +66,36 @@ public class PlayerController : MonoBehaviour {
     {
         //anim.SetFloat("MoveSpeed", Mathf.Abs(rb2d.velocity.x));
         //anim.SetBool("Grounded", isGrounded);
+    }
+
+    // Kill Plane Collision
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.tag == "KillPlane")
+        {
+            levelManager.Respawn();
+        }
+
+        if (other.tag == "Checkpoint")
+        {
+            respawnPosition = other.transform.position;
+        }
+    }
+
+    // Moving Platform Interaction
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.tag == "MovingPlatform")
+        {
+            transform.parent = other.transform;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.gameObject.tag == "MovingPlatform")
+        {
+            transform.parent = null;
+        }
     }
 }
