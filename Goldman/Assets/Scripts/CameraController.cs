@@ -10,12 +10,7 @@ public class CameraController : MonoBehaviour {
 
     private Vector3 targetPos;
 
-    void Start()
-    {
-
-    }
-
-    void Update()
+    void LateUpdate()
     {
 
         targetPos = new Vector3(target.transform.position.x, transform.position.y, transform.position.z);
