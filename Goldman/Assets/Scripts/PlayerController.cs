@@ -11,18 +11,40 @@ public class PlayerController : MonoBehaviour {
 
     public Vector3 respawnPosition;
     public LevelManager levelManager;
-    public SideCollision sideCollision;
 
     // Side Collisions //
-    public BoxCollider2D leftCollider;
-    public BoxCollider2D rightCollider;
-    public BoxCollider2D aboveCollider;
-    public BoxCollider2D belowCollider;
+    public Transform leftCollider1;
+    public Transform leftCollider2;
+    public Transform leftCollider3;
+    public Transform leftCollider4;
+    public Transform leftCollider5;
 
-    public bool colLeft;
-    public bool colRight;
-    public bool colAbove;
-    public bool colBelow;
+    public Transform rightCollider1;
+    public Transform rightCollider2;
+    public Transform rightCollider3;
+    public Transform rightCollider4;
+    public Transform rightCollider5;
+
+    public Transform aboveCollider1;
+    public Transform aboveCollider2;
+    public Transform aboveCollider3;
+
+    public Transform belowCollider1;
+    public Transform belowCollider2;
+    public Transform belowCollider3;
+
+    public float climbRadius;
+    public LayerMask whatIsClimbable;
+
+    public bool climbableLeft;
+    public bool climbableRight;
+
+    //public bool colAbove;
+    //public bool colBelow;
+
+    public bool sticking;
+    public bool canStick;
+    public float clingTime;
 
     // Movement Variables //
     public float moveSpeed;
@@ -36,13 +58,6 @@ public class PlayerController : MonoBehaviour {
     public LayerMask whatIsGround;
     public bool isGrounded;
 
-    public Transform wallCheck;
-    public float wallCheckRadius;
-    public LayerMask whatIsWall;
-    public bool sticking;
-    public bool canStick;
-    public float clingTime;
-
     void Start () {
 
         rb2d = GetComponent<Rigidbody2D>();
@@ -50,12 +65,6 @@ public class PlayerController : MonoBehaviour {
 
         respawnPosition = transform.position;
         levelManager = FindObjectOfType<LevelManager>();
-        sideCollision = GetComponent<SideCollision>();
-
-        leftCollider = GetComponent<BoxCollider2D>();
-        rightCollider = GetComponent<BoxCollider2D>();
-        aboveCollider = GetComponent<BoxCollider2D>();
-        belowCollider = GetComponent<BoxCollider2D>();
     }
 
     void Update () {
@@ -72,17 +81,41 @@ public class PlayerController : MonoBehaviour {
 
     void WallJump()
     {
-        // Flag: If the player can stick onto the wall.
-        /* if (!isGrounded && )
+        if (Physics2D.OverlapCircle(leftCollider1.position, climbRadius, whatIsClimbable) ||
+            Physics2D.OverlapCircle(leftCollider2.position, climbRadius, whatIsClimbable) ||
+            Physics2D.OverlapCircle(leftCollider3.position, climbRadius, whatIsClimbable) ||
+            Physics2D.OverlapCircle(leftCollider4.position, climbRadius, whatIsClimbable) ||
+            Physics2D.OverlapCircle(leftCollider5.position, climbRadius, whatIsClimbable))
         {
-            canStick = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, whatIsWall);
+            climbableLeft = true;
+        }
+        else
+            climbableLeft = false;
+
+        if (Physics2D.OverlapCircle(rightCollider1.position, climbRadius, whatIsClimbable) ||
+            Physics2D.OverlapCircle(rightCollider2.position, climbRadius, whatIsClimbable) ||
+            Physics2D.OverlapCircle(rightCollider3.position, climbRadius, whatIsClimbable) ||
+            Physics2D.OverlapCircle(rightCollider4.position, climbRadius, whatIsClimbable) ||
+            Physics2D.OverlapCircle(rightCollider5.position, climbRadius, whatIsClimbable))
+        {
+            climbableRight = true;
+        }
+        else
+            climbableRight = false;
+
+        // Flag: If the player can stick onto the wall.
+        if ((climbableLeft || climbableRight) && !isGrounded)
+        {
+            canStick = true;
         }
 
-        // 
+        //
+        /*
         if (Input.GetButtonDown("Jump") && sticking)
         {
             rb2d.AddForce(new Vector2(jumpForceX, jumpForceY));
-        } */
+        }
+        */
     }
 
     void Jump()
