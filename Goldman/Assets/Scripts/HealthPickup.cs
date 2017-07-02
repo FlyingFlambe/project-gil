@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoldScript : MonoBehaviour {
+public class HealthPickup : MonoBehaviour {
 
     LevelManager levelManager;
 
-    public int goldValue;
-
-    void Start()
-    {
+    public int healthValue;
+    
+	void Start () {
         levelManager = FindObjectOfType<LevelManager>();
     }
 
@@ -17,7 +16,7 @@ public class GoldScript : MonoBehaviour {
     {
         if (other.tag == "Player")
         {
-            levelManager.AddGold(goldValue);
+            levelManager.AddHealth(healthValue);
 
             Destroy(gameObject);
         }

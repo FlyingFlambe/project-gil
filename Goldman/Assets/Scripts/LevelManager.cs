@@ -67,10 +67,22 @@ public class LevelManager : MonoBehaviour {
 
     void Update()
     {
+        HealthManager();
+    }
+
+    // Health & HP BAR
+    public void HealthManager()
+    {
         if (healthCount <= 0 && !respawning)
         {
             Respawn();
             respawning = true;
+        }
+
+        if (healthCount > maxHealth)
+        {
+            healthCount = maxHealth;
+            UpdateHeartMeter();
         }
     }
 
@@ -101,6 +113,13 @@ public class LevelManager : MonoBehaviour {
     {
         goldCount += goldToAdd;
         goldText.text = "Gold: " + goldCount;
+    }
+
+    // Health Pickups
+    public void AddHealth(int healthToAdd)
+    {
+        healthCount += healthToAdd;
+        UpdateHeartMeter();
     }
 
     // Player Health
