@@ -5,15 +5,16 @@ using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour {
 
-    public float waitToRespawn;
     public PlayerController player;
+    public SpriteRenderer playerSprite;
 
-    //public GameObject deathParticles;
+    public float waitToRespawn;
 
     public int goldCount;
-
     public int maxHealth;
     public int healthCount;
+
+    public bool invincible;
 
     private bool respawning;
 
@@ -59,6 +60,7 @@ public class LevelManager : MonoBehaviour {
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
+        playerSprite = FindObjectOfType<SpriteRenderer>();
 
         goldText.text = "GOLD: " + goldCount;
 
@@ -125,8 +127,13 @@ public class LevelManager : MonoBehaviour {
     // Player Health
     public void HurtPlayer(int damageTaken)
     {
-        healthCount -= damageTaken;
-        UpdateHeartMeter();
+        if (!invincible)
+        {
+            healthCount -= damageTaken;
+            UpdateHeartMeter();
+
+            player.Knockback();
+        }
     }
 
     public void UpdateHeartMeter()

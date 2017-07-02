@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour {
 
     public Vector3 respawnPosition;
     public LevelManager levelManager;
+    public SpriteRenderer playerSprite;
 
     // Side Collisions //
     public Transform leftCollider1;
@@ -58,6 +59,17 @@ public class PlayerController : MonoBehaviour {
     public LayerMask whatIsGround;
     public bool isGrounded;
 
+    public float knockbackForce;
+    public float knockbackLength;
+    private float knockbackCounter;
+
+    public float invincibilityLength;
+    private float invincibilityCounter;
+
+    public bool flashActive;
+    public float flashLength;                   // Should always be the same as invincibilityLength.
+    private float flashCounter;
+
     void Start () {
 
         rb2d = GetComponent<Rigidbody2D>();
@@ -65,21 +77,52 @@ public class PlayerController : MonoBehaviour {
 
         respawnPosition = transform.position;
         levelManager = FindObjectOfType<LevelManager>();
+        playerSprite = GetComponent<SpriteRenderer>();
     }
 
     void Update () {
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, whatIsGround);
 
-        WallJump();
-        Jump();
-        Movement();
+        if (knockbackCounter <= 0)
+        {
+            WallJump();
+            Jump();
+            Movement();
 
-        //leftCollider.isTrigger.
+            if (invincibilityCounter <= 0)
+            {
+                levelManager.invincible = false;
+            }
+            if (flashCounter <= 0)
+            {
+                flashActive = false;
+            }
+        }
+
+        FlashSprite();
+
+        // Invincibility Timer
+        if (invincibilityCounter > 0)
+        {
+            invincibilityCounter -= Time.deltaTime;
+            flashCounter -= Time.deltaTime;
+        }
+
+        // Knockback Timer
+        if (knockbackCounter > 0)
+        {
+            knockbackCounter -= Time.deltaTime;
+
+            if (transform.localScale.x > 0)
+                rb2d.velocity = new Vector3(-knockbackForce, knockbackForce, 0);
+            if (transform.localScale.x < 0)
+                rb2d.velocity = new Vector3(knockbackForce, knockbackForce, 0);
+        }
 
     }
 
-    void WallJump()
+    public void WallJump()
     {
         if (Physics2D.OverlapCircle(leftCollider1.position, climbRadius, whatIsClimbable) ||
             Physics2D.OverlapCircle(leftCollider2.position, climbRadius, whatIsClimbable) ||
@@ -118,7 +161,7 @@ public class PlayerController : MonoBehaviour {
         */
     }
 
-    void Jump()
+    public void Jump()
     {
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
@@ -126,7 +169,7 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    void Movement()
+    public void Movement()
     {
         if (Input.GetAxisRaw("Horizontal") > 0f)
         {
@@ -144,7 +187,34 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    void Animation()
+    public void Knockback()
+    {
+        knockbackCounter = knockbackLength;
+        invincibilityCounter = invincibilityLength;
+        flashCounter = flashLength;
+
+        levelManager.invincible = true;
+        flashActive = true;
+    }
+
+    public void FlashSprite()
+    {
+        if (flashActive)
+        {
+            StartCoroutine("FlashSpriteCo");
+            InvokeRepeating("FlashSpriteCo", flashLength, .1f);
+        }
+    }
+
+    public IEnumerator FlashSpriteCo()
+    {
+        playerSprite.color = new Color(playerSprite.color.r, playerSprite.color.g, playerSprite.color.b, 0f);
+        yield return new WaitForSeconds(.05f);
+        playerSprite.color = new Color(playerSprite.color.r, playerSprite.color.g, playerSprite.color.b, 1f);
+        yield return new WaitForSeconds(.05f);
+    }
+
+    public void Animation()
     {
         //anim.SetFloat("MoveSpeed", Mathf.Abs(rb2d.velocity.x));
         //anim.SetBool("Grounded", isGrounded);
