@@ -14,25 +14,10 @@ public class PlayerController : MonoBehaviour {
     public SpriteRenderer playerSprite;
 
     // Side Collisions //
-    public Transform leftCollider1;
-    public Transform leftCollider2;
-    public Transform leftCollider3;
-    public Transform leftCollider4;
-    public Transform leftCollider5;
-
-    public Transform rightCollider1;
-    public Transform rightCollider2;
-    public Transform rightCollider3;
-    public Transform rightCollider4;
-    public Transform rightCollider5;
-
-    public Transform aboveCollider1;
-    public Transform aboveCollider2;
-    public Transform aboveCollider3;
-
-    public Transform belowCollider1;
-    public Transform belowCollider2;
-    public Transform belowCollider3;
+    public bool leftCollision;
+    public bool rightCollision;
+    public bool topCollision;
+    public bool bottomCollision;
 
     public float climbRadius;
     public LayerMask whatIsClimbable;
@@ -82,6 +67,8 @@ public class PlayerController : MonoBehaviour {
 
     void Update () {
 
+        Debug.Log(Camera.main.pixelHeight);
+
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, whatIsGround);
 
         if (knockbackCounter <= 0)
@@ -124,41 +111,12 @@ public class PlayerController : MonoBehaviour {
 
     public void WallJump()
     {
-        if (Physics2D.OverlapCircle(leftCollider1.position, climbRadius, whatIsClimbable) ||
-            Physics2D.OverlapCircle(leftCollider2.position, climbRadius, whatIsClimbable) ||
-            Physics2D.OverlapCircle(leftCollider3.position, climbRadius, whatIsClimbable) ||
-            Physics2D.OverlapCircle(leftCollider4.position, climbRadius, whatIsClimbable) ||
-            Physics2D.OverlapCircle(leftCollider5.position, climbRadius, whatIsClimbable))
-        {
-            climbableLeft = true;
-        }
-        else
-            climbableLeft = false;
-
-        if (Physics2D.OverlapCircle(rightCollider1.position, climbRadius, whatIsClimbable) ||
-            Physics2D.OverlapCircle(rightCollider2.position, climbRadius, whatIsClimbable) ||
-            Physics2D.OverlapCircle(rightCollider3.position, climbRadius, whatIsClimbable) ||
-            Physics2D.OverlapCircle(rightCollider4.position, climbRadius, whatIsClimbable) ||
-            Physics2D.OverlapCircle(rightCollider5.position, climbRadius, whatIsClimbable))
-        {
-            climbableRight = true;
-        }
-        else
-            climbableRight = false;
-
         // Flag: If the player can stick onto the wall.
         if ((climbableLeft || climbableRight) && !isGrounded)
         {
             canStick = true;
         }
 
-        //
-        /*
-        if (Input.GetButtonDown("Jump") && sticking)
-        {
-            rb2d.AddForce(new Vector2(jumpForceX, jumpForceY));
-        }
-        */
     }
 
     public void Jump()
@@ -237,13 +195,15 @@ public class PlayerController : MonoBehaviour {
     // *OVERHAUL MOVING PLATFORM INTERACTION
     void OnCollisionEnter2D(Collision2D other)
     {
+        Collider2D collider = other.collider;
+        
         // Moving Platform Interaction
         if (other.gameObject.tag == "MovingPlatform")
         {
             transform.parent = other.transform;
         }
     }
-    // ''
+
     void OnCollisionExit2D(Collision2D other)
     {
         if (other.gameObject.tag == "MovingPlatform")
