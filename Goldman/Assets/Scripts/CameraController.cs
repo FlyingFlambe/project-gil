@@ -2,31 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour {
+public class CameraController : MonoBehaviour
+{
 
-    public GameObject target;
-    public float followAhead;
-    public float cameraSmooth;
-
-    private Vector3 targetPos;
+    public Transform target;
+    public float camSpeed;
 
     void LateUpdate()
     {
+        // Create vector for the camera to follow.
+        Vector3 v3 = transform.position;
 
-        targetPos = new Vector3(target.transform.position.x, transform.position.y, transform.position.z);
+        // Calculate vector.
+        v3.x = Mathf.Lerp(v3.x, target.position.x, camSpeed * Time.deltaTime);
+        v3.y = Mathf.Lerp(v3.y, target.position.y, camSpeed * Time.deltaTime);
 
-        // Shift camera target slightly depending on where the player is looking.
-        if (target.transform.localScale.x > 0f)
-        {
-            targetPos = new Vector3(targetPos.x + followAhead, targetPos.y, targetPos.z);
-        }
-        else
-        {
-            targetPos = new Vector3(targetPos.x - followAhead, targetPos.y, targetPos.z);
-        }
-
-        // Smooth the camera's movement.
-        transform.position = Vector3.Lerp(transform.position, targetPos, cameraSmooth * Time.deltaTime);
-
+        // Change camera's position based on vector.
+        transform.position = v3;
     }
 }
