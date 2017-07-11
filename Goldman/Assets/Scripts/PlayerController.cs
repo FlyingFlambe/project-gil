@@ -14,11 +14,6 @@ public class PlayerController : MonoBehaviour {
     public SpriteRenderer playerSprite;
 
     // Side Collisions //
-    public bool leftCollision;
-    public bool rightCollision;
-    public bool topCollision;
-    public bool bottomCollision;
-
     public float climbRadius;
     public LayerMask whatIsClimbable;
 
@@ -67,7 +62,7 @@ public class PlayerController : MonoBehaviour {
 
     void Update () {
 
-        Debug.Log(Camera.main.pixelHeight);
+        //Debug.Log(Camera.main.pixelHeight);
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, whatIsGround);
 
