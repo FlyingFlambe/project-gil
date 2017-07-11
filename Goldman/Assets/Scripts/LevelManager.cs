@@ -62,7 +62,7 @@ public class LevelManager : MonoBehaviour {
         player = FindObjectOfType<PlayerController>();
         playerSprite = FindObjectOfType<SpriteRenderer>();
 
-        goldText.text = "GOLD: " + goldCount;
+        //goldText.text = "GOLD: " + goldCount;                                                 // ****Add back in once gold is shown in the scene****
 
         healthCount = maxHealth;
     }

@@ -14,7 +14,7 @@ public class SideCollision : MonoBehaviour {
     public Vector2 wideBoxSize;                     // Size of below/above collision boxes.
 
     private float angle = 0;                        // Rotates box. Leave this at 0 degrees.
-    public LayerMask sideDetect;                    // LayerMask should collide with every entity for wide use. Implement a check in that entity's specific script for desired outcome.
+    public LayerMask whatIsDetectable;              // LayerMask should collide with every entity for wide use. Implement a check in that entity's specific script for desired outcome.
 
     // Output
     public bool leftCollision;
@@ -30,10 +30,10 @@ public class SideCollision : MonoBehaviour {
 
     void Update () {
 
-        leftCollision = Physics2D.OverlapBox(leftCheck.position, tallBoxSize, angle, sideDetect);
-        rightCollision = Physics2D.OverlapBox(rightCheck.position, tallBoxSize, angle, sideDetect);
-        belowCollision = Physics2D.OverlapBox(belowCheck.position, wideBoxSize, angle, sideDetect);
-        aboveCollision = Physics2D.OverlapBox(aboveCheck.position, wideBoxSize, angle, sideDetect);
+        leftCollision = Physics2D.OverlapBox(leftCheck.position, tallBoxSize, angle, whatIsDetectable);
+        rightCollision = Physics2D.OverlapBox(rightCheck.position, tallBoxSize, angle, whatIsDetectable);
+        belowCollision = Physics2D.OverlapBox(belowCheck.position, wideBoxSize, angle, whatIsDetectable);
+        aboveCollision = Physics2D.OverlapBox(aboveCheck.position, wideBoxSize, angle, whatIsDetectable);
 
     }
 }

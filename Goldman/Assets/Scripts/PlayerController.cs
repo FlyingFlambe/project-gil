@@ -7,7 +7,8 @@ public class PlayerController : MonoBehaviour {
 
     // Setup Variables //
     private Rigidbody2D rb2d;
-    private Animator anim;
+    //private Animator anim;
+    private SideCollision scs;
 
     public Vector3 respawnPosition;
     public LevelManager levelManager;
@@ -17,11 +18,8 @@ public class PlayerController : MonoBehaviour {
     public float climbRadius;
     public LayerMask whatIsClimbable;
 
-    public bool climbableLeft;
-    public bool climbableRight;
-
-    //public bool colAbove;
-    //public bool colBelow;
+    public bool leftClimbable;
+    public bool rightClimbable;
 
     public bool sticking;
     public bool canStick;
@@ -53,7 +51,8 @@ public class PlayerController : MonoBehaviour {
     void Start () {
 
         rb2d = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
+        //anim = GetComponent<Animator>();
+        scs = GetComponent<SideCollision>();
 
         respawnPosition = transform.position;
         levelManager = FindObjectOfType<LevelManager>();
@@ -66,6 +65,10 @@ public class PlayerController : MonoBehaviour {
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, whatIsGround);
 
+        leftClimbable = scs.leftCollision;
+        rightClimbable = scs.rightCollision;
+
+        // If there's no knockback from taking damage, run things as usual.
         if (knockbackCounter <= 0)
         {
             WallJump();
@@ -82,6 +85,7 @@ public class PlayerController : MonoBehaviour {
             }
         }
 
+        // Flash player sprite when damage is taken.
         FlashSprite();
 
         // Invincibility Timer
@@ -106,12 +110,20 @@ public class PlayerController : MonoBehaviour {
 
     public void WallJump()
     {
+        if (!scs.leftCollision || isGrounded)
+            leftClimbable = false;
+        if (!scs.rightCollision || isGrounded)
+            rightClimbable = false;
+
         // Flag: If the player can stick onto the wall.
-        if ((climbableLeft || climbableRight) && !isGrounded)
+        if (leftClimbable || rightClimbable)
         {
             canStick = true;
         }
-
+        else
+        {
+            canStick = false;
+        }
     }
 
     public void Jump()
@@ -127,12 +139,12 @@ public class PlayerController : MonoBehaviour {
         if (Input.GetAxisRaw("Horizontal") > 0f)
         {
             rb2d.velocity = new Vector3(moveSpeed, rb2d.velocity.y, 0f);
-            transform.localScale = new Vector3(1f, 1f, 1f);
+            playerSprite.flipX = false;
         }
         else if (Input.GetAxisRaw("Horizontal") < 0f)
         {
             rb2d.velocity = new Vector3(-moveSpeed, rb2d.velocity.y, 0f);
-            transform.localScale = new Vector3(-1f, 1f, 1f);
+            playerSprite.flipX = true;
         }
         else
         {
@@ -196,6 +208,24 @@ public class PlayerController : MonoBehaviour {
         if (other.gameObject.tag == "MovingPlatform")
         {
             transform.parent = other.transform;
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        if (other.gameObject.layer == 10)
+        {
+
+            if (scs.leftCollision && !isGrounded)
+            {
+                leftClimbable = true;
+            }
+
+            if (scs.rightCollision && !isGrounded)
+            {
+                rightClimbable = true;
+            }
+
         }
     }
 
