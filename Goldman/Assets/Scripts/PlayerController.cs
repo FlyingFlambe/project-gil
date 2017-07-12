@@ -14,6 +14,12 @@ public class PlayerController : MonoBehaviour {
     public LevelManager levelManager;
     public SpriteRenderer playerSprite;
 
+    // Controls //
+    public bool moveLeft;
+    public bool moveRight;
+    public bool movingUp;
+    public bool movingDown;
+
     // Side Collisions //
     public float climbRadius;
     public LayerMask whatIsClimbable;
@@ -63,10 +69,7 @@ public class PlayerController : MonoBehaviour {
 
         //Debug.Log(Camera.main.pixelHeight);
 
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, whatIsGround);
-
-        leftClimbable = scs.leftCollision;
-        rightClimbable = scs.rightCollision;
+        SetControls();
 
         // If there's no knockback from taking damage, run things as usual.
         if (knockbackCounter <= 0)
@@ -108,6 +111,36 @@ public class PlayerController : MonoBehaviour {
 
     }
 
+    public void SetControls()
+    {
+        // Set Grounded variable
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, whatIsGround);
+
+        // Left Movement
+        if (Input.GetAxisRaw("Horizontal") < 0f)
+            moveLeft = true;
+        else
+            moveLeft = false;
+
+        // Right Movement
+        if (Input.GetAxisRaw("Horizontal") > 0f)
+            moveRight = true;
+        else
+            moveRight = false;
+
+        // Moving Upward (No Direct Control)
+        if (rb2d.velocity.y > 0)
+            movingUp = true;
+        else
+            movingUp = false;
+
+        // Moving Downward (No Direct Control)
+        if (rb2d.velocity.y < 0)
+            movingDown = true;
+        else
+            movingDown = false;
+    }
+
     public void WallJump()
     {
         if (!scs.leftCollision || isGrounded)
@@ -136,12 +169,12 @@ public class PlayerController : MonoBehaviour {
 
     public void Movement()
     {
-        if (Input.GetAxisRaw("Horizontal") > 0f)
+        if (moveRight)
         {
             rb2d.velocity = new Vector3(moveSpeed, rb2d.velocity.y, 0f);
             playerSprite.flipX = false;
         }
-        else if (Input.GetAxisRaw("Horizontal") < 0f)
+        else if (moveLeft)
         {
             rb2d.velocity = new Vector3(-moveSpeed, rb2d.velocity.y, 0f);
             playerSprite.flipX = true;
@@ -216,12 +249,12 @@ public class PlayerController : MonoBehaviour {
         if (other.gameObject.layer == 10)
         {
 
-            if (scs.leftCollision && !isGrounded)
+            if (scs.leftCollision && !isGrounded && moveLeft)
             {
                 leftClimbable = true;
             }
 
-            if (scs.rightCollision && !isGrounded)
+            if (scs.rightCollision && !isGrounded && moveRight)
             {
                 rightClimbable = true;
             }
