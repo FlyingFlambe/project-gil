@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour {
         // Set variables.
         gravNorm = 8f;
         gravSlide = -5f;
-        clingTime = 0.4f;
+
     }
 
     void Update () {
@@ -165,7 +165,7 @@ public class PlayerController : MonoBehaviour {
             canStick = false;
 
         // Flag: If the player is currently sticking onto the wall.
-        if ((leftClimbable && moveLeft) || (rightClimbable && moveRight))
+        if (((leftClimbable && moveLeft) || (rightClimbable && moveRight)) && clingTime > 0f)
             isSticking = true;
         else
             isSticking = false;
@@ -173,6 +173,8 @@ public class PlayerController : MonoBehaviour {
         // Change falling speed when sliding on wall.
         if (isSticking && clingTime > 0f)
         {
+            clingTime = 0.4f;
+
             if (rb2d.velocity.y < 0f)
                 rb2d.gravityScale = gravSlide;
             else
@@ -181,13 +183,17 @@ public class PlayerController : MonoBehaviour {
                 rb2d.velocity = new Vector3(rb2d.velocity.x, 0f, 0f);
             }
         }
-        else if (clingTime > 0f)
+        else if (!isSticking && clingTime > 0f && (leftClimbable || rightClimbable))
             clingTime -= (Time.deltaTime);
         else
         {
             rb2d.gravityScale = gravNorm;
+            isSticking = false;
             clingTime = 0.4f;
         }
+
+        // Wall Jumping
+        //if (isSticking)
     }
 
     // BROKEN WALLSLIDE SCRIPT
