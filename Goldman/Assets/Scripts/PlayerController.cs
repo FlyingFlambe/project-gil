@@ -5,10 +5,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
 
-    // Setup Variables //
+    // Class-Specific Variables //
     private Rigidbody2D rb2d;
     //private Animator anim;
     private SideCollision scs;
+    private CapsuleCollider2D collider2d;
 
     public Vector3 respawnPosition;
     public LevelManager levelManager;
@@ -17,31 +18,32 @@ public class PlayerController : MonoBehaviour {
     // Controls //
     public bool moveLeft;
     public bool moveRight;
-    public bool movingUp;
-    public bool movingDown;
-
-    // Side Collisions //
-    public float climbRadius;
-    public LayerMask whatIsClimbable;
-
-    public bool leftClimbable;
-    public bool rightClimbable;
-
-    public bool sticking;
-    public bool canStick;
-    public float clingTime;
+    public bool inAirUp;
+    public bool inAirDown;
 
     // Movement Variables //
     public float moveSpeed;
     public float jumpSpeed;
+    public float gravNorm;                      // Normal fall gravity.
+    public float gravSlide;                     // Gravity when sliding on a wall.
+
+    public bool canStick;
+    public bool isSticking;
+    public float gravCounter;
+    public float clingTime;
 
     public float jumpForceX;
     public float jumpForceY;
 
+    // Checks / Other //
     public Transform groundCheck;
     public float groundCheckRadius;
     public LayerMask whatIsGround;
     public bool isGrounded;
+
+    public LayerMask whatIsClimbable;
+    public bool leftClimbable;
+    public bool rightClimbable;
 
     public float knockbackForce;
     public float knockbackLength;
@@ -56,13 +58,20 @@ public class PlayerController : MonoBehaviour {
 
     void Start () {
 
+        // Set classes.
         rb2d = GetComponent<Rigidbody2D>();
         //anim = GetComponent<Animator>();
         scs = GetComponent<SideCollision>();
+        collider2d = GetComponent<CapsuleCollider2D>();
 
         respawnPosition = transform.position;
         levelManager = FindObjectOfType<LevelManager>();
         playerSprite = GetComponent<SpriteRenderer>();
+
+        // Set variables.
+        gravNorm = 8f;
+        gravSlide = -5f;
+        clingTime = 0.4f;
     }
 
     void Update () {
@@ -103,9 +112,9 @@ public class PlayerController : MonoBehaviour {
         {
             knockbackCounter -= Time.deltaTime;
 
-            if (transform.localScale.x > 0)
+            if (playerSprite.flipX == false)
                 rb2d.velocity = new Vector3(-knockbackForce, knockbackForce, 0);
-            if (transform.localScale.x < 0)
+            if (playerSprite.flipX == true)
                 rb2d.velocity = new Vector3(knockbackForce, knockbackForce, 0);
         }
 
@@ -129,20 +138,21 @@ public class PlayerController : MonoBehaviour {
             moveRight = false;
 
         // Moving Upward (No Direct Control)
-        if (rb2d.velocity.y > 0)
-            movingUp = true;
+        if ((rb2d.velocity.y > 0) && !isGrounded)
+            inAirUp = true;
         else
-            movingUp = false;
+            inAirUp = false;
 
         // Moving Downward (No Direct Control)
-        if (rb2d.velocity.y < 0)
-            movingDown = true;
+        if ((rb2d.velocity.y < 0) && isGrounded)
+            inAirDown = true;
         else
-            movingDown = false;
+            inAirDown = false;
     }
 
     public void WallJump()
     {
+        // Set climbable variables back to false unless collisions with climbables occur.
         if (!scs.leftCollision || isGrounded)
             leftClimbable = false;
         if (!scs.rightCollision || isGrounded)
@@ -150,13 +160,54 @@ public class PlayerController : MonoBehaviour {
 
         // Flag: If the player can stick onto the wall.
         if (leftClimbable || rightClimbable)
-        {
             canStick = true;
+        else
+            canStick = false;
+
+        // Flag: If the player is currently sticking onto the wall.
+        if ((leftClimbable && moveLeft) || (rightClimbable && moveRight))
+            isSticking = true;
+        else
+            isSticking = false;
+
+        // Change falling speed when sliding on wall.
+        if (isSticking && clingTime > 0f)
+        {
+            if (rb2d.velocity.y < 0f)
+                rb2d.gravityScale = gravSlide;
+            else
+            {
+                rb2d.gravityScale = 0f;
+                rb2d.velocity = new Vector3(rb2d.velocity.x, 0f, 0f);
+            }
+        }
+        else if (clingTime > 0f)
+            clingTime -= (Time.deltaTime);
+        else
+        {
+            rb2d.gravityScale = gravNorm;
+            clingTime = 0.4f;
+        }
+    }
+
+    // BROKEN WALLSLIDE SCRIPT
+    public void WallSlide()
+    {
+        // BROKEN WALLSLIDE SCRIPT
+        /*
+        gravCounter = 1f;
+
+        if (gravCounter > 0f)
+        {
+            rb2d.gravityScale = gravSlide;
+            gravCounter -= Time.deltaTime;
+            gravSlide -= gravCounter;
         }
         else
         {
-            canStick = false;
+            gravSlide = 0f;
         }
+        */
     }
 
     public void Jump()
@@ -248,17 +299,11 @@ public class PlayerController : MonoBehaviour {
     {
         if (other.gameObject.layer == 10)
         {
-
-            if (scs.leftCollision && !isGrounded && moveLeft)
-            {
+            if (scs.leftCollision && !isGrounded)
                 leftClimbable = true;
-            }
 
-            if (scs.rightCollision && !isGrounded && moveRight)
-            {
+            if (scs.rightCollision && !isGrounded)
                 rightClimbable = true;
-            }
-
         }
     }
 
