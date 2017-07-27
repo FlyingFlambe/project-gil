@@ -173,7 +173,7 @@ public class PlayerController : MonoBehaviour {
         // Change falling speed when sliding on wall.
         if (isSticking && clingTime > 0f)
         {
-            clingTime = 0.4f;
+            clingTime = 0.2f;
 
             if (rb2d.velocity.y < 0f)
                 rb2d.gravityScale = gravSlide;
@@ -189,7 +189,7 @@ public class PlayerController : MonoBehaviour {
         {
             rb2d.gravityScale = gravNorm;
             isSticking = false;
-            clingTime = 0.4f;
+            clingTime = 0.2f;
         }
 
         // Wall Jumping
