@@ -26,8 +26,9 @@ public class PlayerController : MonoBehaviour {
     public float gravNorm;                      // Normal fall gravity.
     public float gravSlide;                     // Gravity when sliding on a wall.
 
-    public bool canStick;
-    public bool isSticking;
+    public bool canStick;                       // If the player can stick onto a wall
+    public bool isSticking;                     // If the player is currently sticking on a wall
+    public bool postStick;                      // If the player decides to let go of a wall (typically in anticipation of a wall-jump)
     public bool canWallJump;
     public float gravCounter;
     public float clingTime;
@@ -66,10 +67,6 @@ public class PlayerController : MonoBehaviour {
         respawnPosition = transform.position;
         levelManager = FindObjectOfType<LevelManager>();
         playerSprite = GetComponent<SpriteRenderer>();
-
-        // Set variables.
-        gravNorm = 8f;
-        gravSlide = -5f;
 
     }
 
@@ -164,8 +161,11 @@ public class PlayerController : MonoBehaviour {
             canStick = false;
 
         // Flag: If the player is currently sticking onto the wall.
-        if (((leftClimbable && moveLeft) || (rightClimbable && moveRight)) && clingTime > 0f)
+        if ((leftClimbable && moveLeft) || (rightClimbable && moveRight))
+        {
+            clingTime = 0.2f;
             isSticking = true;
+        }
         else
             isSticking = false;
 
@@ -183,12 +183,15 @@ public class PlayerController : MonoBehaviour {
             }
         }
         else if (!isSticking && clingTime > 0f && (leftClimbable || rightClimbable))
+        {
             clingTime -= (Time.deltaTime);
+            postStick = true;
+        }
         else
         {
             rb2d.gravityScale = gravNorm;
             isSticking = false;
-            clingTime = 0.2f;
+            postStick = false;
         }
     }
 
@@ -206,21 +209,23 @@ public class PlayerController : MonoBehaviour {
         else
             canWallJump = false;
 
-        if (canWallJump)
+        if (canWallJump && postStick)
         {
             if (leftClimbable)
             {
                 if (Input.GetButtonDown("Jump"))
                 {
-                    rb2d.AddForce(new Vector2(jumpForceX, jumpForceY), ForceMode2D.Impulse);
+                    rb2d.velocity = new Vector3(jumpForceX, jumpForceY, 0f);
+                    postStick = false;
                 }
             }
 
-            if (rightClimbable)
+            if (rightClimbable && postStick)
             {
                 if (Input.GetButtonDown("Jump"))
                 {
-                    rb2d.AddForce(new Vector2(-jumpForceX, jumpForceY), ForceMode2D.Impulse);
+                    rb2d.velocity = new Vector3(-jumpForceX, jumpForceY, 0f);
+                    postStick = false;
                 }
             }
         }
