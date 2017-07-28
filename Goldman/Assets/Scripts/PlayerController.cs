@@ -21,8 +21,10 @@ public class PlayerController : MonoBehaviour {
     public bool inAirDown;
 
     // Movement Variables //
-    public float moveSpeed;
+    public float moveSpeed;                     // Speed is actually Force. :P
+    public float moveSpeedMax;
     public float jumpSpeed;
+    public float jumpSpeedMax;
     public float gravNorm;                      // Normal fall gravity.
     public float gravSlide;                     // Gravity when sliding on a wall.
 
@@ -194,10 +196,13 @@ public class PlayerController : MonoBehaviour {
 
     public void Jump()
     {
+        if (Input.GetButtonDown("Jump"))
+            rb2d.velocity = Vector2.ClampMagnitude(new Vector2(0f, rb2d.velocity.y), jumpSpeedMax);
+
         // Basic Jump
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            rb2d.velocity = new Vector3(rb2d.velocity.x, jumpSpeed, 0f);
+            rb2d.AddForce(new Vector2(rb2d.velocity.x, jumpSpeed), ForceMode2D.Impulse);
         }
 
         // Wall Jumping
@@ -228,19 +233,20 @@ public class PlayerController : MonoBehaviour {
 
     public void Movement()
     {
+        if (moveRight || moveLeft)
+            rb2d.velocity = Vector2.ClampMagnitude(new Vector2(rb2d.velocity.x, 0f), moveSpeedMax);
+
         if (moveRight)
         {
-            rb2d.velocity = new Vector3(moveSpeed, rb2d.velocity.y, 0f);
+            //rb2d.velocity = new Vector3(moveSpeed, rb2d.velocity.y, 0f);
+            rb2d.AddForce(transform.right * Input.GetAxis("Horizontal") * moveSpeed);
             playerSprite.flipX = false;
         }
         else if (moveLeft)
         {
-            rb2d.velocity = new Vector3(-moveSpeed, rb2d.velocity.y, 0f);
+            //rb2d.velocity = new Vector3(-moveSpeed, rb2d.velocity.y, 0f);
+            rb2d.AddForce(transform.right * Input.GetAxis("Horizontal") * moveSpeed);
             playerSprite.flipX = true;
-        }
-        else
-        {
-            rb2d.velocity = new Vector3(0, rb2d.velocity.y, 0f);
         }
     }
 
