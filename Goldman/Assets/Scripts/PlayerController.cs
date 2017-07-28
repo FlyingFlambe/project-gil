@@ -140,7 +140,7 @@ public class PlayerController : MonoBehaviour {
             inAirUp = false;
 
         // Moving Downward (No Direct Control)
-        if ((rb2d.velocity.y < 0) && isGrounded)
+        if ((rb2d.velocity.y < 0) && !isGrounded)
             inAirDown = true;
         else
             inAirDown = false;
@@ -243,6 +243,8 @@ public class PlayerController : MonoBehaviour {
             rb2d.velocity = new Vector3(-moveSpeed, rb2d.velocity.y, 0f);
             playerSprite.flipX = true;
         }
+        else if (canWallJump && postStick)
+            rb2d.velocity = new Vector3(rb2d.velocity.x, rb2d.velocity.y, 0f);
         else
             rb2d.velocity = new Vector3(0, rb2d.velocity.y, 0f);
     }
