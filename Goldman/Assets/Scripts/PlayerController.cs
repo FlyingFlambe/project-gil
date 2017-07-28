@@ -9,7 +9,6 @@ public class PlayerController : MonoBehaviour {
     private Rigidbody2D rb2d;
     //private Animator anim;
     private SideCollision scs;
-    private CapsuleCollider2D collider2d;
 
     public Vector3 respawnPosition;
     public LevelManager levelManager;
@@ -29,6 +28,7 @@ public class PlayerController : MonoBehaviour {
 
     public bool canStick;
     public bool isSticking;
+    public bool canWallJump;
     public float gravCounter;
     public float clingTime;
 
@@ -62,7 +62,6 @@ public class PlayerController : MonoBehaviour {
         rb2d = GetComponent<Rigidbody2D>();
         //anim = GetComponent<Animator>();
         scs = GetComponent<SideCollision>();
-        collider2d = GetComponent<CapsuleCollider2D>();
 
         respawnPosition = transform.position;
         levelManager = FindObjectOfType<LevelManager>();
@@ -83,7 +82,7 @@ public class PlayerController : MonoBehaviour {
         // If there's no knockback from taking damage, run things as usual.
         if (knockbackCounter <= 0)
         {
-            WallJump();
+            WallSlide();
             Jump();
             Movement();
 
@@ -150,7 +149,7 @@ public class PlayerController : MonoBehaviour {
             inAirDown = false;
     }
 
-    public void WallJump()
+    public void WallSlide()
     {
         // Set climbable variables back to false unless collisions with climbables occur.
         if (!scs.leftCollision || isGrounded)
@@ -191,36 +190,39 @@ public class PlayerController : MonoBehaviour {
             isSticking = false;
             clingTime = 0.2f;
         }
-
-        // Wall Jumping
-        //if (isSticking)
-    }
-
-    // BROKEN WALLSLIDE SCRIPT
-    public void WallSlide()
-    {
-        // BROKEN WALLSLIDE SCRIPT
-        /*
-        gravCounter = 1f;
-
-        if (gravCounter > 0f)
-        {
-            rb2d.gravityScale = gravSlide;
-            gravCounter -= Time.deltaTime;
-            gravSlide -= gravCounter;
-        }
-        else
-        {
-            gravSlide = 0f;
-        }
-        */
     }
 
     public void Jump()
     {
+        // Basic Jump
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             rb2d.velocity = new Vector3(rb2d.velocity.x, jumpSpeed, 0f);
+        }
+
+        // Wall Jumping
+        if (clingTime > 0f && clingTime < 0.2f)
+            canWallJump = true;
+        else
+            canWallJump = false;
+
+        if (canWallJump)
+        {
+            if (leftClimbable)
+            {
+                if (Input.GetButtonDown("Jump"))
+                {
+                    rb2d.AddForce(new Vector2(jumpForceX, jumpForceY), ForceMode2D.Impulse);
+                }
+            }
+
+            if (rightClimbable)
+            {
+                if (Input.GetButtonDown("Jump"))
+                {
+                    rb2d.AddForce(new Vector2(-jumpForceX, jumpForceY), ForceMode2D.Impulse);
+                }
+            }
         }
     }
 
